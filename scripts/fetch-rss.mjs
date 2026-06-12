@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://szzgnyfaxkpjcvjmrtyo.supabase.co'
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_secret_wK6_4FabPIlEKRZSfPIW5w_uvKZmFYu'
+const SUPABASE_KEY = process.env.SUPABASE_KEY
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
