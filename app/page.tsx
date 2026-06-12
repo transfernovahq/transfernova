@@ -6,6 +6,16 @@ export default async function Home() {
     .select('*')
     .order('created_at', { ascending: false })
 
+function tiempoRelativo(fecha: string) {
+  const ahora = new Date()
+  const entonces = new Date(fecha)
+  const diff = Math.floor((ahora.getTime() - entonces.getTime()) / 1000)
+  
+  if (diff < 60) return 'hace un momento'
+  if (diff < 3600) return `hace ${Math.floor(diff / 60)} min`
+  if (diff < 86400) return `hace ${Math.floor(diff / 3600)}h`
+  return `hace ${Math.floor(diff / 86400)}d`
+}
   return (
     <main style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: 'Inter, sans-serif' }}>
 
@@ -80,7 +90,10 @@ export default async function Home() {
                   }}>
                     {rumor.estado === 'confirmado' ? '✅ Confirmado' : rumor.estado === 'caliente' ? '🔥 Caliente' : '👀 Rumor'}
                   </span>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
                   <span style={{ fontSize: 11, color: '#52525b', fontWeight: 500 }}>{rumor.fuente}</span>
+                  <span style={{ fontSize: 10, color: '#3f3f46' }}>{tiempoRelativo(rumor.created_at)}</span>
+                  </div>
                 </div>
 
                 {/* Clubs */}
