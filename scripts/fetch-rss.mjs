@@ -2,7 +2,7 @@ import { XMLParser } from 'fast-xml-parser'
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://szzgnyfaxkpjcvjmrtyo.supabase.co'
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'aqui_tu_service_role_key'
+const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_secret_wK6_4FabPIlEKRZSfPIW5w_uvKZmFYu'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
@@ -12,9 +12,25 @@ const FEEDS = [
   { url: 'https://feeds.bbci.co.uk/sport/football/rss.xml', fuente: 'BBC Sport' },
 ]
 
-const KEYWORDS = [
-  'fichaje', 'traspaso', 'renovación', 'rumor', 'interés',
-  'oferta', 'transfer', 'signing', 'deal', 'contract', 'move'
+const KEYWORDS_INCLUDE = [
+  // Español
+  'fichaje', 'ficha', 'traspaso', 'cesión', 'cedido',
+  'renovación', 'renueva', 'rescisión', 'mercado',
+  'oferta por', 'interés en', 'negocia', 'acuerdo',
+  'millones por', 'cláusula',
+  // Inglés
+  'transfer', 'signing', 'signs', 'signed', 'loan',
+  'contract extension', 'release clause', 'bid for',
+  'move to', 'joins', 'agrees deal', 'fee agreed'
+]
+
+const KEYWORDS_EXCLUDE = [
+  // Noticias que no son fichajes aunque tengan palabras clave
+  'entrevista', 'rueda de prensa', 'partido', 'resultado',
+  'gol', 'lesión', 'sanción', 'amarilla', 'roja',
+  'clasificación', 'champions', 'liga', 'copa',
+  'previa', 'crónica', 'análisis del partido',
+  'convocatoria', 'once titular', 'alineación'
 ]
 
 const parser = new XMLParser()
@@ -30,8 +46,10 @@ async function fetchFeed(feed) {
     return list
       .filter(item => {
         const text = (item.title + ' ' + (item.description || '')).toLowerCase()
-        return KEYWORDS.some(kw => text.includes(kw))
-      })
+        const hasKeyword = KEYWORDS_INCLUDE.some(kw => text.includes(kw))
+        const isExcluded = KEYWORDS_EXCLUDE.some(kw => text.includes(kw))
+        return hasKeyword && !isExcluded
+        })
       .map(item => ({
         titular: item.title,
         fuente: feed.fuente,
