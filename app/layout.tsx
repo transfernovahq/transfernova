@@ -5,8 +5,17 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TransferNova - Rumores y fichajes de fútbol",
-  description: "Los últimos rumores y fichajes del fútbol en tiempo real",
+  title: "TransferNova - Rumores y Fichajes de Fútbol en Tiempo Real",
+  description: "Los últimos rumores, fichajes y traspasos del fútbol mundial. Actualizado en tiempo real con las noticias más recientes del mercado de fichajes.",
+  keywords: "fichajes fútbol, rumores fichajes, mercado fichajes, traspasos fútbol, noticias fichajes",
+  openGraph: {
+    title: "TransferNova - Rumores y Fichajes de Fútbol",
+    description: "Los últimos rumores y fichajes del fútbol en tiempo real",
+    url: "https://gettransfernova.com",
+    siteName: "TransferNova",
+    locale: "es_ES",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
