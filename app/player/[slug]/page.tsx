@@ -4,11 +4,15 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
   const { slug } = await params
   const nombre = decodeURIComponent(slug).replace(/-/g, ' ')
 
-  const { data: rumores } = await supabase
-    .from('rumores')
-    .select('*')
-    .ilike('jugador', nombre)
-    .order('created_at', { ascending: false })
+  const nombreNormalizado = nombre
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+
+const { data: rumores } = await supabase
+  .from('rumores')
+  .select('*')
+  .or(`jugador.ilike.${nombre},jugador.ilike.${nombreNormalizado}`)
+  .order('created_at', { ascending: false })
 
   return (
     <main style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: 'Inter, sans-serif' }}>
