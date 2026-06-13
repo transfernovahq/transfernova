@@ -1,10 +1,13 @@
 import { XMLParser } from 'fast-xml-parser'
 import { createClient } from '@supabase/supabase-js'
+import Groq from 'groq-sdk'
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://szzgnyfaxkpjcvjmrtyo.supabase.co'
 const SUPABASE_KEY = process.env.SUPABASE_KEY
+const GROQ_API_KEY = process.env.GROQ_API_KEY
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+const groq = new Groq({ apiKey: GROQ_API_KEY })
 
 const FEEDS = [
   { url: 'https://www.marca.com/rss/futbol.xml', fuente: 'Marca' },
@@ -13,27 +16,60 @@ const FEEDS = [
 ]
 
 const KEYWORDS_INCLUDE = [
-  // Español
   'fichaje', 'ficha', 'traspaso', 'cesión', 'cedido',
   'renovación', 'renueva', 'rescisión', 'mercado',
   'oferta por', 'interés en', 'negocia', 'acuerdo',
   'millones por', 'cláusula',
-  // Inglés
   'transfer', 'signing', 'signs', 'signed', 'loan',
   'contract extension', 'release clause', 'bid for',
   'move to', 'joins', 'agrees deal', 'fee agreed'
 ]
 
 const KEYWORDS_EXCLUDE = [
-  // Noticias que no son fichajes aunque tengan palabras clave
   'entrevista', 'rueda de prensa', 'partido', 'resultado',
   'gol', 'lesión', 'sanción', 'amarilla', 'roja',
-  'clasificación', 'champions', 'liga', 'copa',
-  'previa', 'crónica', 'análisis del partido',
+  'clasificación', 'previa', 'crónica', 'análisis del partido',
   'convocatoria', 'once titular', 'alineación'
 ]
 
 const parser = new XMLParser()
+
+async function procesarConIA(titular, fuente) {
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        {
+          role: 'user',
+          content: `Analiza este titular de fútbol y extrae la información en JSON.
+
+Titular: "${titular}"
+Fuente: "${fuente}"
+
+Responde SOLO con JSON válido, sin texto adicional, sin markdown:
+{
+  "jugador": "nombre completo del jugador o null",
+  "club_origen": "club actual del jugador o null",
+  "club_destino": "club al que va o null",
+  "tipo": "fichaje|cesion|renovacion|interes|rescision",
+  "estado": "confirmado|caliente|rumor",
+  "probabilidad": numero entre 0 y 100,
+  "resumen": "una frase corta explicando el rumor en español"
+}`
+        }
+      ],
+      temperature: 0.1,
+      max_tokens: 300,
+    })
+
+    const texto = completion.choices[0]?.message?.content?.trim()
+    const datos = JSON.parse(texto)
+    return datos
+  } catch (e) {
+    console.error('Error IA:', e.message)
+    return null
+  }
+}
 
 async function fetchFeed(feed) {
   try {
@@ -49,16 +85,11 @@ async function fetchFeed(feed) {
         const hasKeyword = KEYWORDS_INCLUDE.some(kw => text.includes(kw))
         const isExcluded = KEYWORDS_EXCLUDE.some(kw => text.includes(kw))
         return hasKeyword && !isExcluded
-        })
+      })
       .map(item => ({
         titular: item.title,
         fuente: feed.fuente,
         url: item.link,
-        jugador: 'Por clasificar',
-        club_origen: null,
-        club_destino: null,
-        estado: 'rumor',
-        probabilidad: 50,
       }))
   } catch (e) {
     console.error(`Error en ${feed.fuente}:`, e.message)
@@ -74,15 +105,46 @@ async function main() {
     console.log(`${feed.fuente}: ${noticias.length} noticias relevantes`)
 
     for (const noticia of noticias) {
+      // Verificar si ya existe
+      const { data: existe } = await supabase
+        .from('rumores')
+        .select('id')
+        .eq('url', noticia.url)
+        .single()
+
+      if (existe) {
+        console.log(`  ⏭ Ya existe: ${noticia.titular.slice(0, 50)}`)
+        continue
+      }
+
+      // Procesar con IA
+      console.log(`  🤖 Procesando: ${noticia.titular.slice(0, 50)}`)
+      const ia = await procesarConIA(noticia.titular, noticia.fuente)
+
+      const rumor = {
+        titular: noticia.titular,
+        fuente: noticia.fuente,
+        url: noticia.url,
+        jugador: ia?.jugador || 'Por clasificar',
+        club_origen: ia?.club_origen || null,
+        club_destino: ia?.club_destino || null,
+        estado: ia?.estado || 'rumor',
+        probabilidad: ia?.probabilidad || 50,
+        jugador_detectado: !!ia?.jugador,
+      }
+
       const { error } = await supabase
         .from('rumores')
-        .upsert(noticia, { onConflict: 'url', ignoreDuplicates: true })
+        .insert(rumor)
 
       if (error) {
-        console.error('Error guardando:', error.message)
+        console.error('  ❌ Error guardando:', error.message)
       } else {
-        console.log(`  ✅ ${noticia.titular.slice(0, 60)}`)
+        console.log(`  ✅ ${rumor.jugador} | ${rumor.estado} | ${rumor.probabilidad}%`)
       }
+
+      // Pausa para no saturar la API
+      await new Promise(r => setTimeout(r, 500))
     }
     console.log()
   }
