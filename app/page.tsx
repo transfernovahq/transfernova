@@ -15,6 +15,10 @@ function iniciales(nombre: string) {
   return nombre.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
 }
 
+function toSlug(nombre: string) {
+  return nombre.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')
+}
+
 export default async function Home() {
   const { data: rumores } = await supabase
     .from('rumores')
@@ -155,7 +159,7 @@ export default async function Home() {
 
                         {/* Bottom */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: 11, color: '#52525b' }}>{rumor.fuente}</span>
+                          <a href={`/player/${toSlug(rumor.jugador)}`} style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}>👤 {rumor.jugador}</a>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: 60, height: 3, background: 'rgba(255,255,255,0.05)', borderRadius: 999, overflow: 'hidden' }}>
                               <div style={{ width: `${rumor.probabilidad}%`, height: '100%', background: probColor, borderRadius: 999 }}></div>
