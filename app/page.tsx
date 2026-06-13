@@ -16,7 +16,12 @@ function iniciales(nombre: string) {
 }
 
 function toSlug(nombre: string) {
-  return nombre.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')
+  return nombre
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ /g, '-')
+    .replace(/[^a-z0-9-]/g, '')
 }
 
 export default async function Home() {

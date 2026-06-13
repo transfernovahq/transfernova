@@ -2,7 +2,7 @@
 
 export default async function PlayerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const nombre = slug.replace(/-/g, ' ')
+  const nombre = decodeURIComponent(slug).replace(/-/g, ' ')
 
   const { data: rumores } = await supabase
     .from('rumores')
