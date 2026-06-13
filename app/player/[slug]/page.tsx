@@ -11,7 +11,7 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
 const { data: rumores } = await supabase
   .from('rumores')
   .select('*')
-  .or(`jugador.ilike.${nombre},jugador.ilike.${nombreNormalizado}`)
+  .eq('jugador_slug', slug)
   .order('created_at', { ascending: false })
 
   return (

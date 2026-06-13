@@ -2,6 +2,16 @@ import { XMLParser } from 'fast-xml-parser'
 import { createClient } from '@supabase/supabase-js'
 import Groq from 'groq-sdk'
 
+function toSlug(nombre) {
+  if (!nombre) return null
+  return nombre
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ /g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+}
+
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://szzgnyfaxkpjcvjmrtyo.supabase.co'
 const SUPABASE_KEY = process.env.SUPABASE_KEY
 const GROQ_API_KEY = process.env.GROQ_API_KEY
@@ -131,6 +141,7 @@ async function main() {
         estado: ia?.estado || 'rumor',
         probabilidad: ia?.probabilidad || 50,
         jugador_detectado: !!ia?.jugador,
+        jugador_slug: toSlug(ia?.jugador),
       }
 
       const { error } = await supabase
