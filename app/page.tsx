@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+export const revalidate = 300
 
 function tiempoRelativo(fecha: string) {
   const ahora = new Date()
