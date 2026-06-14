@@ -198,7 +198,7 @@ export default async function Home() {
               <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>🔥 Trending</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {trending.map((jugador, i) => (
-                  <div key={jugador} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <a key={jugador} href={`/player/${toSlug(jugador)}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                     <span style={{ fontSize: 11, fontWeight: 800, color: '#3f3f46', width: 16 }}>{i + 1}</span>
                     <div style={{
                       width: 32, height: 32, borderRadius: 8,
@@ -209,7 +209,7 @@ export default async function Home() {
                       {iniciales(jugador)}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{jugador}</span>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>

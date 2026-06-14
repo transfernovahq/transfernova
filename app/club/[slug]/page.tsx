@@ -1,5 +1,14 @@
  import { supabase } from '@/lib/supabase'
 
+ export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const nombre = slug.replace(/-/g, ' ')
+  return {
+    title: `${nombre} - Rumores y fichajes | TransferNova`,
+    description: `Todos los rumores y fichajes del ${nombre}. Última hora del mercado de fichajes en TransferNova.`,
+  }
+}
+
 export default async function ClubPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const nombre = slug.replace(/-/g, ' ')

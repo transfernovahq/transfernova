@@ -1,23 +1,27 @@
- import { supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const nombre = slug.replace(/-/g, ' ')
+  return {
+    title: `${nombre} - Rumores y fichajes | TransferNova`,
+    description: `Todos los rumores y fichajes de ${nombre}. Última hora del mercado de fichajes en TransferNova.`,
+  }
+}
 
 export default async function PlayerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const nombre = decodeURIComponent(slug).replace(/-/g, ' ')
 
-  const nombreNormalizado = nombre
-  .normalize('NFD')
-  .replace(/[\u0300-\u036f]/g, '')
-
-const { data: rumores } = await supabase
-  .from('rumores')
-  .select('*')
-  .eq('jugador_slug', slug)
-  .order('created_at', { ascending: false })
+  const { data: rumores } = await supabase
+    .from('rumores')
+    .select('*')
+    .eq('jugador_slug', slug)
+    .order('created_at', { ascending: false })
 
   return (
     <main style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: 'Inter, sans-serif' }}>
 
-      {/* Header */}
       <header style={{ position: 'sticky', top: 0, background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)', zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <a href="/" style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.5px', textDecoration: 'none', color: 'white' }}>
@@ -28,7 +32,6 @@ const { data: rumores } = await supabase
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 20px' }}>
 
-        {/* Player header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <div style={{
             width: 64, height: 64, borderRadius: 16,
@@ -45,7 +48,6 @@ const { data: rumores } = await supabase
           </div>
         </div>
 
-        {/* Rumores */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {rumores && rumores.length > 0 ? rumores.map((rumor) => {
             const color = rumor.estado === 'confirmado' ? '#00ff87' : rumor.estado === 'caliente' ? '#f97316' : '#6366f1'
