@@ -24,6 +24,15 @@ function toSlug(nombre: string) {
     .replace(/[^a-z0-9-]/g, '')
 }
 
+function toClubSlug(nombre: string) {
+  return nombre
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ /g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+}
+
 export default async function Home() {
   const { data: rumores } = await supabase
     .from('rumores')
@@ -145,13 +154,13 @@ export default async function Home() {
                             </span>
                             {esTransfer && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6 }}>{rumor.club_origen}</span>
+                                <a href={`/club/${toClubSlug(rumor.club_origen)}`} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_origen}</a>
                                 <span style={{ color: '#3f3f46', fontSize: 12 }}>→</span>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: '#e4e4e7', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 6 }}>{rumor.club_destino}</span>
+                                <a href={`/club/${toClubSlug(rumor.club_destino)}`} style={{ fontSize: 11, fontWeight: 600, color: '#e4e4e7', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</a>
                               </div>
                             )}
                             {!esTransfer && rumor.club_destino && (
-                              <span style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6 }}>{rumor.club_destino}</span>
+                              <a href={`/club/${toClubSlug(rumor.club_destino)}`} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</a>
                             )}
                           </div>
                           <span style={{ fontSize: 11, color: '#3f3f46', flexShrink: 0 }}>{tiempoRelativo(rumor.created_at)}</span>
