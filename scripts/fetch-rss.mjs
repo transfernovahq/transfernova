@@ -15,6 +15,8 @@ function toSlug(nombre) {
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://szzgnyfaxkpjcvjmrtyo.supabase.co'
 const SUPABASE_KEY = process.env.SUPABASE_KEY
 const GROQ_API_KEY = process.env.GROQ_API_KEY
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHANNEL = '@transfernovahq'
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 const groq = new Groq({ apiKey: GROQ_API_KEY })
@@ -43,6 +45,38 @@ const KEYWORDS_EXCLUDE = [
 ]
 
 const parser = new XMLParser()
+
+async function publicarEnTelegram(rumor) {
+  if (!TELEGRAM_BOT_TOKEN) return
+
+  const estado = rumor.estado === 'confirmado' ? '✅ CONFIRMADO'
+    : rumor.estado === 'caliente' ? '🔥 CALIENTE'
+    : '👀 RUMOR'
+
+  const transfer = rumor.club_origen && rumor.club_destino && rumor.club_origen !== rumor.club_destino
+    ? `\n⚽ ${rumor.club_origen} → ${rumor.club_destino}`
+    : rumor.club_destino ? `\n⚽ ${rumor.club_destino}` : ''
+
+  const jugador = rumor.jugador && rumor.jugador !== 'Por clasificar'
+    ? `\n👤 ${rumor.jugador}` : ''
+
+  const mensaje = `${estado}${jugador}${transfer}\n\n${rumor.titular}\n\n🎯 Fiabilidad: ${rumor.probabilidad}%\n📰 ${rumor.fuente}\n\n🔗 https://gettransfernova.com`
+
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHANNEL,
+        text: mensaje,
+        parse_mode: 'HTML'
+      })
+    })
+    console.log('  📨 Publicado en Telegram')
+  } catch (e) {
+    console.error('  ❌ Error Telegram:', e.message)
+  }
+}
 
 async function procesarConIA(titular, fuente) {
   try {
@@ -115,7 +149,6 @@ async function main() {
     console.log(`${feed.fuente}: ${noticias.length} noticias relevantes`)
 
     for (const noticia of noticias) {
-      // Verificar si ya existe
       const { data: existe } = await supabase
         .from('rumores')
         .select('id')
@@ -127,7 +160,6 @@ async function main() {
         continue
       }
 
-      // Procesar con IA
       console.log(`  🤖 Procesando: ${noticia.titular.slice(0, 50)}`)
       const ia = await procesarConIA(noticia.titular, noticia.fuente)
 
@@ -152,9 +184,11 @@ async function main() {
         console.error('  ❌ Error guardando:', error.message)
       } else {
         console.log(`  ✅ ${rumor.jugador} | ${rumor.estado} | ${rumor.probabilidad}%`)
+        if (rumor.probabilidad >= 70 || rumor.estado === 'confirmado' || rumor.estado === 'caliente') {
+          await publicarEnTelegram(rumor)
+        }
       }
 
-      // Pausa para no saturar la API
       await new Promise(r => setTimeout(r, 500))
     }
     console.log()
