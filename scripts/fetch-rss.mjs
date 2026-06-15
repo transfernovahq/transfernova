@@ -85,25 +85,36 @@ async function procesarConIA(titular, fuente) {
       messages: [
         {
           role: 'user',
-          content: `Analiza este titular de fútbol y extrae la información en JSON.
+          content: `Eres un experto en mercado de fichajes de fútbol. Analiza este titular y decide si es relevante para una web de rumores y fichajes.
 
 Titular: "${titular}"
 Fuente: "${fuente}"
 
-Responde SOLO con JSON válido, sin texto adicional, sin markdown:
+PASO 1 - VALIDACIÓN:
+Solo es válido si trata sobre: fichajes, traspasos, cesiones, renovaciones, negociaciones, ofertas económicas, interés de clubes en jugadores, ventas de jugadores.
+
+NO es válido si trata sobre: lesiones, partidos, resultados, goles, entrevistas generales, entrenamientos, sanciones, tarjetas, alineaciones, convocatorias, otros deportes, noticias de clubes sin jugador implicado.
+
+PASO 2 - Si NO es válido, responde SOLO con: {"valido": false}
+
+PASO 3 - Si ES válido, responde SOLO con este JSON en español (traduce si está en inglés):
 {
+  "valido": true,
   "jugador": "nombre completo del jugador o null",
   "club_origen": "club actual del jugador o null",
   "club_destino": "club al que va o null",
   "tipo": "fichaje|cesion|renovacion|interes|rescision",
   "estado": "confirmado|caliente|rumor",
   "probabilidad": numero entre 0 y 100,
-  "resumen": "una frase corta explicando el rumor en español"
-}`
+  "titular_es": "titular traducido al español si estaba en inglés, o el mismo si ya estaba en español",
+  "resumen": "una frase corta en español explicando el rumor"
+}
+
+Responde SOLO con JSON válido, sin texto adicional, sin markdown.`
         }
       ],
       temperature: 0.1,
-      max_tokens: 300,
+      max_tokens: 400,
     })
 
     const texto = completion.choices[0]?.message?.content?.trim()
@@ -163,8 +174,13 @@ async function main() {
       console.log(`  🤖 Procesando: ${noticia.titular.slice(0, 50)}`)
       const ia = await procesarConIA(noticia.titular, noticia.fuente)
 
+      if (!ia || ia.valido === false) {
+        console.log(`  ⛔ Descartado por IA`)
+        continue
+      }
+
       const rumor = {
-        titular: noticia.titular,
+        titular: ia.titular_es || noticia.titular,
         fuente: noticia.fuente,
         url: noticia.url,
         jugador: ia?.jugador || 'Por clasificar',
