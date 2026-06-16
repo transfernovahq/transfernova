@@ -118,9 +118,7 @@ IMPORTANTE: Es mejor devolver null que inventar información. Solo incluye datos
     })
 
     const texto = completion.choices[0]?.message?.content?.trim()
-    const jsonMatch = texto.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) return null
-    const datos = JSON.parse(jsonMatch[0])
+    const datos = JSON.parse(texto)
     return datos
   } catch (e) {
     console.error('Error IA:', e.message)

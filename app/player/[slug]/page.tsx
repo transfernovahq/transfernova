@@ -6,6 +6,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${nombre} - Rumores y fichajes | TransferNova`,
     description: `Todos los rumores y fichajes de ${nombre}. Última hora del mercado de fichajes en TransferNova.`,
+    alternates: {
+      canonical: `https://gettransfernova.com/player/${slug}`,
+    },
+    openGraph: {
+      title: `${nombre} - Rumores y fichajes`,
+      description: `Todos los rumores y fichajes de ${nombre} en tiempo real.`,
+      url: `https://gettransfernova.com/player/${slug}`,
+      siteName: 'TransferNova',
+      locale: 'es_ES',
+      type: 'website',
+    },
   }
 }
 
@@ -31,6 +42,15 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
       </header>
 
       <div style={{ maxWidth: 700, margin: '0 auto', padding: '32px 20px' }}>
+
+        {/* Breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 24, fontSize: 12, color: '#52525b' }}>
+          <a href="/" style={{ color: '#52525b', textDecoration: 'none' }}>TransferNova</a>
+          <span>›</span>
+          <a href="/" style={{ color: '#52525b', textDecoration: 'none' }}>Jugadores</a>
+          <span>›</span>
+          <span style={{ color: '#a1a1aa', textTransform: 'capitalize' }}>{nombre}</span>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <div style={{
@@ -82,6 +102,29 @@ export default async function PlayerPage({ params }: { params: Promise<{ slug: s
             <p style={{ color: '#52525b', fontSize: 14 }}>No se encontraron rumores para este jugador.</p>
           )}
         </div>
+
+        {/* Clubes relacionados */}
+        {rumores && rumores.length > 0 && (
+          <div style={{ marginTop: 32 }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>⚽ Clubes relacionados</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[...new Set([
+                ...rumores.map(r => r.club_origen),
+                ...rumores.map(r => r.club_destino)
+              ].filter(Boolean))].map(club => (
+                <a key={club} href={`/club/${club.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ /g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                  style={{
+                    fontSize: 12, fontWeight: 600, padding: '6px 12px',
+                    borderRadius: 999, background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: '#a1a1aa', textDecoration: 'none'
+                  }}>
+                  {club}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </main>
