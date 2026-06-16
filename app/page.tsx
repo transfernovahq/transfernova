@@ -44,11 +44,14 @@ export default async function Home() {
   const confirmados = rumores?.filter(r => r.estado === 'confirmado').length || 0
   const calientes = rumores?.filter(r => r.estado === 'caliente').length || 0
   const trending = [...new Set(rumores?.map(r => r.jugador).filter(j => j && j !== 'Por clasificar'))].slice(0, 5)
+  const trendingClubs = [...new Set([
+    ...rumores?.map(r => r.club_destino).filter(Boolean) || [],
+    ...rumores?.map(r => r.club_origen).filter(Boolean) || []
+  ])].slice(0, 5)
 
   return (
     <main style={{ minHeight: '100vh', background: '#080808', color: 'white', fontFamily: 'Inter, sans-serif' }}>
 
-      {/* Header */}
       <header style={{ position: 'sticky', top: 0, background: 'rgba(8,8,8,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)', zIndex: 50 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h1 style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.5px' }}>
@@ -122,13 +125,11 @@ export default async function Home() {
                   cursor: 'pointer',
                   transition: 'border-color 0.2s'
                 }}>
-                  {/* Accent */}
                   <div style={{ height: 2, background: `linear-gradient(90deg, ${color}40, transparent)` }}></div>
 
                   <div style={{ padding: '16px 18px' }}>
                     <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
 
-                      {/* Avatar */}
                       <div style={{
                         width: 44, height: 44, borderRadius: 12,
                         background: `linear-gradient(135deg, ${color}20, ${color}10)`,
@@ -139,10 +140,8 @@ export default async function Home() {
                         {iniciales(rumor.jugador || 'NN')}
                       </div>
 
-                      {/* Content */}
                       <div style={{ flex: 1, minWidth: 0 }}>
 
-                        {/* Top row */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <span style={{
@@ -166,12 +165,10 @@ export default async function Home() {
                           <span style={{ fontSize: 11, color: '#3f3f46', flexShrink: 0 }}>{tiempoRelativo(rumor.created_at)}</span>
                         </div>
 
-                        {/* Titular */}
                         <p style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.4, color: '#f4f4f5', marginBottom: 12 }}>
                           {rumor.titular}
                         </p>
 
-                        {/* Bottom */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <a href={`/player/${toSlug(rumor.jugador)}`} style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}>👤 {rumor.jugador}</a>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -193,7 +190,7 @@ export default async function Home() {
           {/* Sidebar */}
           <div style={{ width: 260, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Trending */}
+            {/* Trending jugadores */}
             <div style={{ background: '#111111', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', padding: 16 }}>
               <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>🔥 Trending</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -209,6 +206,27 @@ export default async function Home() {
                       {iniciales(jugador)}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{jugador}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Trending clubs */}
+            <div style={{ background: '#111111', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', padding: 16 }}>
+              <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>⚽ Clubes activos</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {trendingClubs.map((club, i) => (
+                  <a key={club} href={`/club/${toClubSlug(club)}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#3f3f46', width: 16 }}>{i + 1}</span>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8,
+                      background: 'rgba(255,255,255,0.05)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 10, fontWeight: 800, color: '#71717a'
+                    }}>
+                      {club.slice(0, 2).toUpperCase()}
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{club}</span>
                   </a>
                 ))}
               </div>
