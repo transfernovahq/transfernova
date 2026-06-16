@@ -100,17 +100,17 @@ PASO 2 - Si NO es válido, responde SOLO con: {"valido": false}
 PASO 3 - Si ES válido, responde SOLO con este JSON en español (traduce si está en inglés):
 {
   "valido": true,
-  "jugador": "nombre completo del jugador o null",
-  "club_origen": "club actual del jugador o null",
-  "club_destino": "club al que va o null",
-  "tipo": "fichaje|cesion|renovacion|interes|rescision",
-  "estado": "confirmado|caliente|rumor",
-  "probabilidad": numero entre 0 y 100,
+  "jugador": "nombre completo SOLO si aparece explícitamente en el titular, si no null",
+  "club_origen": "club actual SOLO si se menciona explícitamente en el titular, si no null. NUNCA inventes ni supongas.",
+  "club_destino": "club destino SOLO si se menciona explícitamente en el titular, si no null. NUNCA inventes ni supongas.",
+  "tipo": "fichaje|cesion|renovacion|interes|rescision SOLO si está claro, si no null",
+  "estado": "confirmado SOLO si dice oficial/anuncia/confirma, caliente si hay negociación activa, rumor en cualquier otro caso",
+  "probabilidad": "número entre 0 y 100 basado SOLO en lo que dice el titular. Si es rumor sin confirmar máximo 60. Si es oficial 100.",
   "titular_es": "titular traducido al español si estaba en inglés, o el mismo si ya estaba en español",
   "resumen": "una frase corta en español explicando el rumor"
 }
 
-Responde SOLO con JSON válido, sin texto adicional, sin markdown.`
+IMPORTANTE: Es mejor devolver null que inventar información. Solo incluye datos que aparezcan EXPLÍCITAMENTE en el titular.`
         }
       ],
       temperature: 0.1,
@@ -118,7 +118,9 @@ Responde SOLO con JSON válido, sin texto adicional, sin markdown.`
     })
 
     const texto = completion.choices[0]?.message?.content?.trim()
-    const datos = JSON.parse(texto)
+    const jsonMatch = texto.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) return null
+    const datos = JSON.parse(jsonMatch[0])
     return datos
   } catch (e) {
     console.error('Error IA:', e.message)
