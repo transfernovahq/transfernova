@@ -87,8 +87,10 @@ async function procesarConIA(titular, fuente) {
           role: 'user',
           content: `Eres un experto en mercado de fichajes de fútbol. Tu trabajo es analizar titulares con MÁXIMA precisión y CERO inventiva.
 
-Titular: "${titular}"
+Titular: "${titular.replace(/"/g, "'")}"
 Fuente: "${fuente}"
+
+REGLA DE TRADUCCIÓN OBLIGATORIA: si el titular está en inglés, DEBES traducirlo COMPLETO al español en el campo titular_es. Nunca dejes palabras en inglés. Esto es obligatorio incluso si el titular tiene comillas o nombres propios raros.
 
 REGLA DE ORO: si un dato no aparece EXPLÍCITAMENTE escrito en el titular, devuelve null para ese campo. Nunca asumas, nunca infieras, nunca completes con conocimiento general.
 
