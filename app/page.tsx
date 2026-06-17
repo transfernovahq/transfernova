@@ -33,6 +33,17 @@ function toClubSlug(nombre: string) {
     .replace(/[^a-z0-9-]/g, '')
 }
 
+function urlFuente(fuente: string) {
+  const fuentes: Record<string, string> = {
+    'Marca': 'https://www.marca.com',
+    'Mundo Deportivo': 'https://www.mundodeportivo.com',
+    'BBC Sport': 'https://www.bbc.co.uk/sport/football',
+    'AS': 'https://www.as.com',
+    'Sport': 'https://www.sport.es',
+  }
+  return fuentes[fuente] || '#'
+}
+
 export default async function Home() {
   const { data: rumores } = await supabase
     .from('rumores')
@@ -162,7 +173,10 @@ export default async function Home() {
                               <a href={`/club/${toClubSlug(rumor.club_destino)}`} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</a>
                             )}
                           </div>
-                          <span style={{ fontSize: 11, color: '#3f3f46', flexShrink: 0 }}>{tiempoRelativo(rumor.created_at)}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                            <a href={urlFuente(rumor.fuente)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}>{rumor.fuente}</a>
+                            <span style={{ fontSize: 11, color: '#3f3f46' }}>{tiempoRelativo(rumor.created_at)}</span>
+                          </div>
                         </div>
 
                         <p style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.4, color: '#f4f4f5', marginBottom: 12 }}>
