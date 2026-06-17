@@ -85,32 +85,47 @@ async function procesarConIA(titular, fuente) {
       messages: [
         {
           role: 'user',
-          content: `Eres un experto en mercado de fichajes de fútbol. Analiza este titular y decide si es relevante para una web de rumores y fichajes.
+          content: `Eres un experto en mercado de fichajes de fútbol. Tu trabajo es analizar titulares con MÁXIMA precisión y CERO inventiva.
 
 Titular: "${titular}"
 Fuente: "${fuente}"
 
-PASO 1 - VALIDACIÓN:
-Solo es válido si trata sobre: fichajes, traspasos, cesiones, renovaciones, negociaciones, ofertas económicas, interés de clubes en jugadores, ventas de jugadores.
+REGLA DE ORO: si un dato no aparece EXPLÍCITAMENTE escrito en el titular, devuelve null para ese campo. Nunca asumas, nunca infieras, nunca completes con conocimiento general.
 
-NO es válido si trata sobre: lesiones, partidos, resultados, goles, entrevistas generales, entrenamientos, sanciones, tarjetas, alineaciones, convocatorias, otros deportes, noticias de clubes sin jugador implicado.
+PASO 1 - VALIDACIÓN
+Válido SOLO si trata sobre: fichajes, traspasos, cesiones, renovaciones, negociaciones, ofertas económicas, interés de clubes en jugadores, ventas de jugadores.
+NO válido: lesiones, partidos, resultados, goles, entrevistas generales, entrenamientos, sanciones, tarjetas, alineaciones, convocatorias, otros deportes, contenido promocional, juegos o predictores, noticias sin jugador ni club implicado.
 
-PASO 2 - Si NO es válido, responde SOLO con: {"valido": false}
+Si NO es válido, responde SOLO: {"valido": false}
 
-PASO 3 - Si ES válido, responde SOLO con este JSON en español (traduce si está en inglés):
+EJEMPLOS de cómo extraer datos correctamente:
+
+Titular: "Real Madrid announce £51.8m deal for Chelsea's Cucurella"
+→ jugador: "Cucurella", club_origen: "Chelsea", club_destino: "Real Madrid" (ambos clubes están explícitos)
+
+Titular: "El Real Madrid presume de Cucurella con España"
+→ jugador: "Cucurella", club_origen: null, club_destino: null (no se menciona ningún club de origen/destino de fichaje, es otro tipo de noticia)
+
+Titular: "Bernardo Silva no llega gratis al Real Madrid"
+→ jugador: "Bernardo Silva", club_origen: null, club_destino: "Real Madrid" (el origen no está escrito)
+
+Titular: "El Mallorca se pone duro con Demichelis"
+→ jugador: "Demichelis", club_origen: null, club_destino: "Mallorca"
+
+PASO 2 - Si es válido, responde SOLO con este JSON en español:
 {
   "valido": true,
-  "jugador": "nombre completo SOLO si aparece explícitamente en el titular, si no null",
-  "club_origen": "club actual SOLO si se menciona explícitamente en el titular, si no null. NUNCA inventes ni supongas.",
-  "club_destino": "club destino SOLO si se menciona explícitamente en el titular, si no null. NUNCA inventes ni supongas.",
-  "tipo": "fichaje|cesion|renovacion|interes|rescision SOLO si está claro, si no null",
-  "estado": "confirmado SOLO si dice oficial/anuncia/confirma, caliente si hay negociación activa, rumor en cualquier otro caso",
-  "probabilidad": "número entre 0 y 100 basado SOLO en lo que dice el titular. Si es rumor sin confirmar máximo 60. Si es oficial 100.",
-  "titular_es": "titular traducido al español si estaba en inglés, o el mismo si ya estaba en español",
-  "resumen": "una frase corta en español explicando el rumor"
+  "jugador": "nombre SOLO si aparece en el titular, si no null",
+  "club_origen": "SOLO si aparece explícitamente, si no null",
+  "club_destino": "SOLO si aparece explícitamente, si no null",
+  "tipo": "fichaje|cesion|renovacion|interes|rescision o null si no está claro",
+  "estado": "confirmado SOLO si dice oficial/anuncia/confirma/ya es jugador, caliente si hay negociación activa explícita, rumor en cualquier otro caso",
+  "probabilidad": "0-100. Rumor sin confirmar: máximo 60. Oficial: 100.",
+  "titular_es": "titular traducido al español si estaba en inglés, igual si ya estaba en español",
+  "resumen": "una frase corta en español"
 }
 
-IMPORTANTE: Es mejor devolver null que inventar información. Solo incluye datos que aparezcan EXPLÍCITAMENTE en el titular.`
+Responde SOLO con JSON válido, sin texto adicional, sin markdown.`
         }
       ],
       temperature: 0.1,
@@ -179,6 +194,19 @@ async function main() {
         continue
       }
 
+      const probRaw = String(ia?.probabilidad || '')
+      const esNumeroLimpio = /^\d+$/.test(probRaw.trim())
+      let probabilidadFinal = 50
+      if (esNumeroLimpio) {
+        probabilidadFinal = Math.min(100, Math.max(0, parseInt(probRaw)))
+      } else if (ia?.estado === 'confirmado') {
+        probabilidadFinal = 100
+      } else if (ia?.estado === 'caliente') {
+        probabilidadFinal = 70
+      } else {
+        probabilidadFinal = 50
+      }
+
       const rumor = {
         titular: ia.titular_es || noticia.titular,
         fuente: noticia.fuente,
@@ -187,7 +215,7 @@ async function main() {
         club_origen: ia?.club_origen || null,
         club_destino: ia?.club_destino || null,
         estado: ia?.estado || 'rumor',
-        probabilidad: ia?.probabilidad || 50,
+        probabilidad: probabilidadFinal,
         jugador_detectado: !!ia?.jugador,
         jugador_slug: toSlug(ia?.jugador),
       }
