@@ -44,12 +44,19 @@ function urlFuente(fuente: string) {
   return fuentes[fuente] || '#'
 }
 
-export default async function Home() {
-  const { data: rumores } = await supabase
+export default async function Home({ searchParams }: { searchParams: Promise<{ estado?: string }> }) {
+  const { estado } = await searchParams
+  let query = supabase
     .from('rumores')
     .select('*')
     .order('created_at', { ascending: false })
     .limit(50)
+
+  if (estado === 'caliente' || estado === 'confirmado' || estado === 'rumor') {
+    query = query.eq('estado', estado)
+  }
+
+  const { data: rumores } = await query
 
   const total = rumores?.length || 0
   const confirmados = rumores?.filter(r => r.estado === 'confirmado').length || 0
@@ -97,24 +104,28 @@ export default async function Home() {
         {/* Tabs */}
         <div style={{ padding: '16px 0', display: 'flex', gap: 8, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           {[
-            { label: 'Todo', active: true },
-            { label: '🔥 Caliente', active: false },
-            { label: '✅ Confirmado', active: false },
-            { label: '👀 Rumor', active: false },
-          ].map(tab => (
-            <button key={tab.label} style={{
-              fontSize: 12,
-              fontWeight: 600,
-              padding: '7px 14px',
-              borderRadius: 999,
-              border: tab.active ? 'none' : '1px solid rgba(255,255,255,0.08)',
-              background: tab.active ? '#00ff87' : 'transparent',
-              color: tab.active ? '#000' : '#71717a',
-              cursor: 'pointer'
-            }}>
-              {tab.label}
-            </button>
-          ))}
+            { label: 'Todo', value: undefined },
+            { label: '🔥 Caliente', value: 'caliente' },
+            { label: '✅ Confirmado', value: 'confirmado' },
+            { label: '👀 Rumor', value: 'rumor' },
+          ].map(tab => {
+            const active = estado === tab.value || (!estado && !tab.value)
+            return (
+              <a key={tab.label} href={tab.value ? `/?estado=${tab.value}` : '/'} style={{
+                fontSize: 12,
+                fontWeight: 600,
+                padding: '7px 14px',
+                borderRadius: 999,
+                border: active ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                background: active ? '#00ff87' : 'transparent',
+                color: active ? '#000' : '#71717a',
+                cursor: 'pointer',
+                textDecoration: 'none'
+              }}>
+                {tab.label}
+              </a>
+            )
+          })}
         </div>
 
         {/* Main layout */}
