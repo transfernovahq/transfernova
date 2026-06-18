@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import TrackedLink from '@/components/TrackedLink'
 export const revalidate = 300
 
 function tiempoRelativo(fecha: string) {
@@ -175,13 +176,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
                             </span>
                             {esTransfer && (
                               <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                                <a href={`/club/${toClubSlug(rumor.club_origen)}`} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_origen}</a>
+                                <TrackedLink href={`/club/${toClubSlug(rumor.club_origen)}`} eventName="click_club" eventParams={{ club: rumor.club_origen }} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_origen}</TrackedLink>
                                 <span style={{ color: '#3f3f46', fontSize: 12 }}>→</span>
-                                <a href={`/club/${toClubSlug(rumor.club_destino)}`} style={{ fontSize: 11, fontWeight: 600, color: '#e4e4e7', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</a>
+                                <TrackedLink href={`/club/${toClubSlug(rumor.club_destino)}`} eventName="click_club" eventParams={{ club: rumor.club_destino }} style={{ fontSize: 11, fontWeight: 600, color: '#e4e4e7', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</TrackedLink>
                               </div>
                             )}
                             {!esTransfer && rumor.club_destino && (
-                              <a href={`/club/${toClubSlug(rumor.club_destino)}`} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</a>
+                              <TrackedLink href={`/club/${toClubSlug(rumor.club_destino)}`} eventName="click_club" eventParams={{ club: rumor.club_destino }} style={{ fontSize: 11, fontWeight: 600, color: '#a1a1aa', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: 6, textDecoration: 'none' }}>{rumor.club_destino}</TrackedLink>
                             )}
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
@@ -195,7 +196,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
                         </p>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <a href={`/player/${toSlug(rumor.jugador)}`} style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}>👤 {rumor.jugador}</a>
+                          <TrackedLink href={`/player/${toSlug(rumor.jugador)}`} eventName="click_jugador" eventParams={{ jugador: rumor.jugador }} style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}>👤 {rumor.jugador}</TrackedLink>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <div style={{ width: 60, height: 3, background: 'rgba(255,255,255,0.05)', borderRadius: 999, overflow: 'hidden' }}>
                               <div style={{ width: `${rumor.probabilidad}%`, height: '100%', background: probColor, borderRadius: 999 }}></div>
@@ -220,7 +221,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>🔥 Trending</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {trending.map((jugador, i) => (
-                  <a key={jugador} href={`/player/${toSlug(jugador)}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                  <TrackedLink key={jugador} href={`/player/${toSlug(jugador)}`} eventName="click_jugador_trending" eventParams={{ jugador }} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                     <span style={{ fontSize: 11, fontWeight: 800, color: '#3f3f46', width: 16 }}>{i + 1}</span>
                     <div style={{
                       width: 32, height: 32, borderRadius: 8,
@@ -231,7 +232,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
                       {iniciales(jugador)}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{jugador}</span>
-                  </a>
+                  </TrackedLink>
                 ))}
               </div>
             </div>
@@ -241,7 +242,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
               <p style={{ fontSize: 12, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: 14 }}>⚽ Clubes activos</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {trendingClubs.map((club, i) => (
-                  <a key={club} href={`/club/${toClubSlug(club)}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+                  <TrackedLink key={club} href={`/club/${toClubSlug(club)}`} eventName="click_club_trending" eventParams={{ club }} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
                     <span style={{ fontSize: 11, fontWeight: 800, color: '#3f3f46', width: 16 }}>{i + 1}</span>
                     <div style={{
                       width: 32, height: 32, borderRadius: 8,
@@ -252,7 +253,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ e
                       {club.slice(0, 2).toUpperCase()}
                     </div>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#e4e4e7' }}>{club}</span>
-                  </a>
+                  </TrackedLink>
                 ))}
               </div>
             </div>
