@@ -60,7 +60,7 @@ async function publicarEnTelegram(rumor) {
   const jugador = rumor.jugador && rumor.jugador !== 'Por clasificar'
     ? `\n👤 ${rumor.jugador}` : ''
 
-  const mensaje = `${estado}${jugador}${transfer}\n\n${rumor.titular}\n\n🎯 Fiabilidad: ${rumor.probabilidad}%\n📰 ${rumor.fuente}\n\n🔗 https://gettransfernova.com`
+  const mensaje = `${estado}${jugador}${transfer}\n\n${rumor.titular}\n\n🎯 Fiabilidad: ${rumor.probabilidad}%\n📰 ${rumor.fuente}\n\n🔗 https://gettransfernova.com?utm_source=telegram&utm_medium=social&utm_campaign=rumor`
 
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
