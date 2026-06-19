@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "TransferNova - Rumores y Fichajes de Fútbol en Tiempo Real",
   description: "Los últimos rumores, fichajes y traspasos del fútbol mundial. Actualizado en tiempo real con las noticias más recientes del mercado de fichajes.",
   keywords: "fichajes fútbol, rumores fichajes, mercado fichajes, traspasos fútbol, noticias fichajes",
+  verification: {
+    google: 'KY7394PMWpCqs39XPLWRKD3koeqQrGkYFtB8Rl0LGcY',
+  },
   openGraph: {
     title: "TransferNova - Rumores y Fichajes de Fútbol",
     description: "Los últimos rumores y fichajes del fútbol en tiempo real",
