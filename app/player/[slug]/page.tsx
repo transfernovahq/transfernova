@@ -2,7 +2,14 @@ import { supabase } from '@/lib/supabase'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const nombre = slug.replace(/-/g, ' ')
+  const { data: jugadorData } = await supabase
+    .from('rumores')
+    .select('jugador')
+    .eq('jugador_slug', slug)
+    .not('jugador', 'eq', 'Por clasificar')
+    .limit(1)
+    .single()
+  const nombre = jugadorData?.jugador || slug.replace(/-/g, ' ')
   return {
     title: `${nombre} - Rumores y fichajes | TransferNova`,
     description: `Todos los rumores y fichajes de ${nombre}. Última hora del mercado de fichajes en TransferNova.`,
@@ -22,7 +29,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function PlayerPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const nombre = decodeURIComponent(slug).replace(/-/g, ' ')
+  const { data: jugadorData } = await supabase
+    .from('rumores')
+    .select('jugador')
+    .eq('jugador_slug', slug)
+    .not('jugador', 'eq', 'Por clasificar')
+    .limit(1)
+    .single()
+  const nombre = jugadorData?.jugador || decodeURIComponent(slug).replace(/-/g, ' ')
 
   const { data: rumores } = await supabase
     .from('rumores')
