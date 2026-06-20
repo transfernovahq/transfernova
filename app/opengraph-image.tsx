@@ -1,12 +1,38 @@
 import { ImageResponse } from 'next/og'
+import { createClient } from '@supabase/supabase-js'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 
 export const alt = 'TransferNova - Rumores en tiempo real'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+async function getStats() {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    const { data, error } = await supabase
+      .from('rumores')
+      .select('estado')
+
+    if (error || !data) throw new Error()
+
+    const total = data.length
+    const calientes = data.filter(r => r.estado === 'caliente').length
+    const confirmados = data.filter(r => r.estado === 'confirmado').length
+
+    return { total, calientes, confirmados }
+  } catch {
+    return { total: 100, calientes: 20, confirmados: 10 }
+  }
+}
+
 export default async function Image() {
+  const { total, calientes, confirmados } = await getStats()
+
   return new ImageResponse(
     (
       <div
@@ -58,12 +84,7 @@ export default async function Image() {
           marginBottom: '20px',
         }}>
           <div style={{ width: '40px', height: '2px', background: '#00ff87' }} />
-          <div style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            background: '#00ff87',
-          }} />
+          <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#00ff87' }} />
           <div style={{ width: '40px', height: '2px', background: '#00ff87' }} />
         </div>
 
@@ -102,24 +123,20 @@ export default async function Image() {
           gettransfernova.com
         </div>
 
-        {/* Estadísticas */}
-        <div style={{
-          display: 'flex',
-          gap: '32px',
-          marginTop: '36px',
-        }}>
+        {/* Estadísticas dinámicas */}
+        <div style={{ display: 'flex', gap: '32px', marginTop: '36px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontSize: 28, fontWeight: 700, color: '#ffffff' }}>371</span>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#ffffff' }}>{total}</span>
             <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Rumores</span>
           </div>
           <div style={{ width: '1px', height: '48px', background: '#ffffff15' }} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontSize: 28, fontWeight: 700, color: '#f97316' }}>97</span>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#f97316' }}>{calientes}</span>
             <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Calientes</span>
           </div>
           <div style={{ width: '1px', height: '48px', background: '#ffffff15' }} />
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-            <span style={{ fontSize: 28, fontWeight: 700, color: '#00ff87' }}>76</span>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#00ff87' }}>{confirmados}</span>
             <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Confirmados</span>
           </div>
         </div>
