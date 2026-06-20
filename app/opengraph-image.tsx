@@ -19,67 +19,113 @@ export default async function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: 'sans-serif',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {/* Borde neón superior */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: '#00ff87' }} />
+
+        {/* Círculo decorativo fondo izquierda */}
         <div style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: '#00ff87',
+          left: '-80px',
+          top: '50%',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          border: '1px solid #00ff8720',
+          marginTop: '-200px',
         }} />
 
-        {/* Logo / Nombre */}
+        {/* Círculo decorativo fondo derecha */}
         <div style={{
-          fontSize: 80,
-          fontWeight: 900,
-          color: '#ffffff',
-          letterSpacing: '-2px',
+          position: 'absolute',
+          right: '-80px',
+          top: '50%',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          border: '1px solid #00ff8720',
+          marginTop: '-200px',
+        }} />
+
+        {/* Icono flecha transferencia */}
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '16px',
+          gap: '12px',
+          marginBottom: '20px',
+        }}>
+          <div style={{ width: '40px', height: '2px', background: '#00ff87' }} />
+          <div style={{
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            background: '#00ff87',
+          }} />
+          <div style={{ width: '40px', height: '2px', background: '#00ff87' }} />
+        </div>
+
+        {/* Marca principal */}
+        <div style={{
+          fontSize: 88,
+          fontWeight: 900,
+          color: '#ffffff',
+          letterSpacing: '-4px',
+          lineHeight: 1,
+          display: 'flex',
         }}>
           Transfer<span style={{ color: '#00ff87' }}>Nova</span>
         </div>
 
         {/* Eslogan */}
         <div style={{
-          fontSize: 28,
+          fontSize: 22,
           color: '#71717a',
-          marginTop: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
+          marginTop: '14px',
+          letterSpacing: '4px',
+          textTransform: 'uppercase',
         }}>
-          <span style={{
-            width: '10px',
-            height: '10px',
-            borderRadius: '50%',
-            background: '#00ff87',
-          }} />
-          Rumores en tiempo real
+          Live Transfer Market
         </div>
 
         {/* Dominio */}
         <div style={{
-          fontSize: 20,
-          color: '#71717a',
-          marginTop: '40px',
+          fontSize: 26,
+          color: '#ffffff',
+          marginTop: '28px',
+          letterSpacing: '1px',
+          borderBottom: '1px solid #00ff87',
+          paddingBottom: '4px',
         }}>
           gettransfernova.com
         </div>
 
-        {/* Borde neón inferior */}
+        {/* Estadísticas */}
         <div style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: '#00ff87',
-        }} />
+          display: 'flex',
+          gap: '32px',
+          marginTop: '36px',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#ffffff' }}>371</span>
+            <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Rumores</span>
+          </div>
+          <div style={{ width: '1px', height: '48px', background: '#ffffff15' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#f97316' }}>97</span>
+            <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Calientes</span>
+          </div>
+          <div style={{ width: '1px', height: '48px', background: '#ffffff15' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: 28, fontWeight: 700, color: '#00ff87' }}>76</span>
+            <span style={{ fontSize: 13, color: '#71717a', letterSpacing: '2px', textTransform: 'uppercase' }}>Confirmados</span>
+          </div>
+        </div>
+
+        {/* Borde neón inferior */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', background: '#00ff87' }} />
       </div>
     ),
     { ...size }
