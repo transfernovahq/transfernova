@@ -10,9 +10,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     .limit(1)
     .single()
   const nombre = jugadorData?.jugador || slug.replace(/-/g, ' ')
+  const { count } = await supabase
+    .from('rumores')
+    .select('*', { count: 'exact', head: true })
+    .eq('jugador_slug', slug)
+
   return {
     title: `${nombre} - Rumores y fichajes | TransferNova`,
     description: `Todos los rumores y fichajes de ${nombre}. Última hora del mercado de fichajes en TransferNova.`,
+    robots: count === 0 ? 'noindex, nofollow' : 'index, follow',
     alternates: {
       canonical: `https://gettransfernova.com/player/${slug}`,
     },
