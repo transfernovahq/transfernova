@@ -114,12 +114,20 @@ Titular: "Bernardo Silva no llega gratis al Real Madrid"
 Titular: "El Mallorca se pone duro con Demichelis"
 → jugador: "Demichelis", club_origen: null, club_destino: "Mallorca"
 
+NOMBRES DE CLUBES ESTANDARIZADOS (usa siempre estos):
+- Barcelona (nunca Barça ni FCB)
+- Real Madrid (nunca Real ni RM)
+- Atlético de Madrid (nunca Atlético ni Atletico)
+- Bayern Munich (nunca Bayern)
+- Athletic Club (nunca Athletic)
+- Aston Villa (nunca Villa)
+
 PASO 2 - Si es válido, responde SOLO con este JSON en español:
 {
   "valido": true,
-  "jugador": "nombre SOLO si aparece en el titular, si no null",
-  "club_origen": "SOLO si aparece explícitamente, si no null",
-  "club_destino": "SOLO si aparece explícitamente, si no null",
+  "jugador": "nombre SOLO si aparece en el titular. Si aparecen DOS jugadores, elige el más relevante. Nunca combines dos nombres con guión. Si no aparece ninguno, null.",
+  "club_origen": "SOLO si aparece explícitamente, si no null (nunca escribas el string 'null', usa null de JSON)",
+  "club_destino": "SOLO si aparece explícitamente, si no null (nunca escribas el string 'null', usa null de JSON)",
   "tipo": "fichaje|cesion|renovacion|interes|rescision o null si no está claro",
   "estado": "confirmado SOLO si dice oficial/anuncia/confirma/ya es jugador, caliente si hay negociación activa explícita, rumor en cualquier otro caso",
   "probabilidad": "0-100. Rumor sin confirmar: máximo 60. Oficial: 100.",
