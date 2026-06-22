@@ -60,7 +60,18 @@ async function publicarEnTelegram(rumor) {
   const jugador = rumor.jugador && rumor.jugador !== 'Por clasificar'
     ? `\n👤 ${rumor.jugador}` : ''
 
-  const mensaje = `${estado}${jugador}${transfer}\n\n${rumor.titular}\n\n🎯 Fiabilidad: ${rumor.probabilidad}%\n📰 ${rumor.fuente}\n\n🔗 https://gettransfernova.com?utm_source=telegram&utm_medium=social&utm_campaign=rumor`
+  const fiabilidad = rumor.jugador && rumor.jugador !== 'Por clasificar'
+    ? `\n🎯 Fiabilidad: ${rumor.probabilidad}%` : ''
+
+  const enlaceBase = 'https://gettransfernova.com'
+  const utm = '?utm_source=telegram&utm_medium=social&utm_campaign=rumor'
+  const enlace = rumor.jugador_slug
+    ? `${enlaceBase}/player/${rumor.jugador_slug}${utm}`
+    : rumor.club_destino
+      ? `${enlaceBase}/club/${toSlug(rumor.club_destino)}${utm}`
+      : `${enlaceBase}${utm}`
+
+  const mensaje = `${estado}${jugador}${transfer}\n\n${rumor.titular}${fiabilidad}\n📰 ${rumor.fuente}\n\n👉 Ver rumor completo: ${enlace}`
 
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -69,7 +80,8 @@ async function publicarEnTelegram(rumor) {
       body: JSON.stringify({
         chat_id: TELEGRAM_CHANNEL,
         text: mensaje,
-        parse_mode: 'HTML'
+        parse_mode: 'HTML',
+        link_preview_options: { is_disabled: true }
       })
     })
     console.log('  📨 Publicado en Telegram')
