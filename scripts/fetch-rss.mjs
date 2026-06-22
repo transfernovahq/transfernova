@@ -252,6 +252,22 @@ async function main() {
         console.log(`  ✅ ${rumor.jugador} | ${rumor.estado} | ${rumor.probabilidad}%`)
         if (rumor.probabilidad >= 70 || rumor.estado === 'confirmado' || rumor.estado === 'caliente') {
           await publicarEnTelegram(rumor)
+
+          // Copy para Twitter/X
+          const transferX = rumor.club_origen && rumor.club_destino && rumor.club_origen !== rumor.club_destino
+            ? `${rumor.club_origen} → ${rumor.club_destino}`
+            : rumor.club_destino || ''
+          const jugadorX = rumor.jugador && rumor.jugador !== 'Por clasificar' ? rumor.jugador : ''
+          const hashtagsX = [
+            jugadorX ? `#${jugadorX.replace(/ /g, '')}` : '',
+            transferX ? `#Fichajes` : '',
+            '#TransferNova'
+          ].filter(Boolean).join(' ')
+          const enlaceX = rumor.jugador_slug
+            ? `https://gettransfernova.com/player/${rumor.jugador_slug}?utm_source=twitter&utm_medium=social&utm_campaign=rumor`
+            : `https://gettransfernova.com?utm_source=twitter&utm_medium=social&utm_campaign=rumor`
+          const copyX = `${rumor.estado === 'confirmado' ? '✅' : '🔥'} ${jugadorX ? jugadorX + ' ' : ''}${transferX ? '· ' + transferX + ' ' : ''}\n\n${rumor.titular}\n\n${hashtagsX}\n${enlaceX}`
+          console.log(`\n--- COPY TWITTER/X ---\n${copyX}\n----------------------\n`)
         }
       }
 
