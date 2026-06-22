@@ -4,10 +4,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const nombre = slug.replace(/-/g, ' ')
 
-  const { count } = await supabase
-    .from('rumores')
-    .select('*', { count: 'exact', head: true })
-    .or(`club_origen.ilike.${nombre},club_destino.ilike.${nombre}`)
+  const { data: countData } = await supabase
+    .rpc('get_rumores_by_club', { club_nombre: nombre })
+  const count = countData?.length ?? 0
 
   return {
     title: `${nombre} - Rumores y fichajes | TransferNova`,
@@ -31,14 +30,12 @@ export default async function ClubPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const nombre = slug.replace(/-/g, ' ')
 
-  const { data: rumores } = await supabase
-    .from('rumores')
-    .select('*')
-    .or(`club_origen.ilike.${nombre},club_destino.ilike.${nombre}`)
-    .order('created_at', { ascending: false })
+  const { data: rpcData } = await supabase
+    .rpc('get_rumores_by_club', { club_nombre: nombre })
+  const rumores = (rpcData as any[]) ?? []
 
   const jugadoresTrending = [...new Set(
-    rumores?.map(r => r.jugador).filter(j => j && j !== 'Por clasificar')
+    (rumores as any[])?.map((r: any) => r.jugador).filter((j: any) => j && j !== 'Por clasificar')
   )].slice(0, 5)
 
   return (
